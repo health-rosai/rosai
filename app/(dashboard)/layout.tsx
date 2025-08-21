@@ -23,6 +23,7 @@ import { toast } from 'sonner'
 const navigation = [
   { name: 'ダッシュボード', href: '/dashboard', icon: LayoutDashboard },
   { name: '企業管理', href: '/companies', icon: Building2 },
+  { name: 'カンバン', href: '/kanban', icon: LayoutDashboard },
   { name: '代理店管理', href: '/agency', icon: Users },
   { name: 'メール管理', href: '/emails', icon: Mail },
   { name: 'FAQ管理', href: '/faqs', icon: FileText },
