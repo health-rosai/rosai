@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "app/api/email/auto-reply/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/gmail/import/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/reports/generate/route.ts": {
+      "maxDuration": 60
+    }
+  }
+}
