@@ -16,10 +16,6 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
-  
-  // Check if Supabase is configured
-  const isSupabaseConfigured = process.env.NEXT_PUBLIC_SUPABASE_URL && 
-                               process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -72,39 +68,6 @@ export default function LoginPage() {
     }
   }
 
-  // Show demo mode if Supabase is not configured
-  if (!isSupabaseConfigured) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">労災二次健診システム</CardTitle>
-            <CardDescription>
-              デモモード - Supabase設定が必要です
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600">
-                このシステムを使用するには、Supabaseの設定が必要です。
-                環境変数に以下を設定してください：
-              </p>
-              <ul className="text-xs text-gray-500 space-y-1">
-                <li>• NEXT_PUBLIC_SUPABASE_URL</li>
-                <li>• NEXT_PUBLIC_SUPABASE_ANON_KEY</li>
-              </ul>
-              <Button 
-                className="w-full"
-                onClick={() => router.push('/dashboard')}
-              >
-                デモダッシュボードを表示
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
