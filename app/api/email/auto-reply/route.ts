@@ -177,7 +177,7 @@ export async function POST(request: NextRequest) {
       template = REPLY_TEMPLATES[manual_override.template as keyof typeof REPLY_TEMPLATES]
     } else if (REPLY_TEMPLATES[company.current_status as keyof typeof REPLY_TEMPLATES]) {
       template = REPLY_TEMPLATES[company.current_status as keyof typeof REPLY_TEMPLATES]
-    } else if (REPLY_TEMPLATES[analysis.intent]) {
+    } else if (analysis.intent && REPLY_TEMPLATES[analysis.intent as keyof typeof REPLY_TEMPLATES]) {
       template = REPLY_TEMPLATES[analysis.intent as keyof typeof REPLY_TEMPLATES]
     } else {
       template = REPLY_TEMPLATES.inquiry

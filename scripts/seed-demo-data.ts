@@ -187,7 +187,7 @@ async function seedDemoData() {
         industry: INDUSTRIES[Math.floor(Math.random() * INDUSTRIES.length)],
         contact_person: faker.person.fullName(),
         contact_email: faker.internet.email(),
-        contact_phone: faker.phone.number('03-####-####'),
+        contact_phone: faker.phone.number(),
         address: faker.location.streetAddress(),
         current_status: STATUS_LIST[Math.floor(Math.random() * STATUS_LIST.length)],
         status_changed_at: faker.date.recent(),
@@ -201,7 +201,7 @@ async function seedDemoData() {
 
     // 3. ステータス履歴作成
     console.log('📊 ステータス履歴作成中...')
-    const statusHistories = []
+    const statusHistories: any[] = []
     companies.forEach(company => {
       for (let i = 0; i < faker.number.int({ min: 2, max: 8 }); i++) {
         const history = {
@@ -218,7 +218,7 @@ async function seedDemoData() {
 
     // 4. メールデータ作成
     console.log('📧 メールデータ作成中...')
-    const emails = []
+    const emails: any[] = []
     companies.forEach(company => {
       for (let i = 0; i < faker.number.int({ min: 1, max: 5 }); i++) {
         const email = {
