@@ -1,0 +1,13 @@
+残りの必要な環境変数：
+
+NEXT_PUBLIC_APP_URL
+https://rosai.vercel.app
+
+NEXT_PUBLIC_ENVIRONMENT
+production
+
+GMAIL_CLIENT_SECRET
+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
+
+GMAIL_REDIRECT_URI
+https://rosai.vercel.app/api/gmail/import
