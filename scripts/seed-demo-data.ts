@@ -282,7 +282,7 @@ async function seedDemoData() {
     // デモデータをJSONファイルとして保存
     const fs = require('fs')
     const path = require('path')
-    const outputPath = path.join(__dirname, 'demo-data.json')
+    const outputPath = path.join(process.cwd(), 'scripts', 'demo-data.json')
     fs.writeFileSync(outputPath, JSON.stringify(demoData, null, 2))
 
     console.log('✅ デモデータ生成完了！')
