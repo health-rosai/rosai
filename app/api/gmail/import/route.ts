@@ -134,13 +134,23 @@ export async function GET(request: NextRequest) {
   
   if (!code) {
     // 認証URLを生成
+    console.log('Generating auth URL...')
+    console.log('Environment variables:', {
+      clientId: process.env.GMAIL_CLIENT_ID ? 'present' : 'missing',
+      clientSecret: process.env.GMAIL_CLIENT_SECRET ? 'present' : 'missing',
+      redirectUri: process.env.GMAIL_REDIRECT_URI
+    })
+    
     const gmailClient = new GmailClient()
     const authUrl = gmailClient.generateAuthUrl()
+    console.log('Generated auth URL:', authUrl)
+    
     return NextResponse.json({ authUrl })
   }
 
   // 認証コードからトークンを取得
   try {
+    console.log('Processing OAuth callback with code:', code.substring(0, 10) + '...')
     const gmailClient = new GmailClient()
     const tokens = await gmailClient.getToken(code)
     
@@ -151,9 +161,10 @@ export async function GET(request: NextRequest) {
       refresh_token: tokens.refresh_token,
       instructions: `GMAIL_REFRESH_TOKEN=${tokens.refresh_token}`
     })
-  } catch (error) {
+  } catch (error: any) {
+    console.error('OAuth callback error:', error)
     return NextResponse.json(
-      { error: 'Failed to authenticate', details: error },
+      { error: 'Failed to authenticate', details: error.message || error },
       { status: 500 }
     )
   }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { dummyCompanies } from '@/scripts/seed-dummy-data'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { STATUS_DEFINITIONS, type Company, type Alert, type StatusCode, type Phase } from '@/types/database'
 import { 
@@ -132,26 +133,59 @@ export default function DashboardPage() {
 
   const fetchDashboardData = async () => {
     try {
-      // Fetch companies
-      const { data: companiesData } = await supabase
-        .from('companies')
-        .select('*')
-        .order('updated_at', { ascending: false })
+      // 開発環境ではダミーデータを使用
+      let companiesData = null
+      if (process.env.NODE_ENV === 'development') {
+        companiesData = dummyCompanies
+      } else {
+        // 本番環境ではSupabaseから取得
+        const { data } = await supabase
+          .from('companies')
+          .select('*')
+          .order('updated_at', { ascending: false })
+        companiesData = data
+      }
 
-      // Fetch unresolved alerts
-      const { data: alertsData } = await supabase
+      // 開発環境ではモックデータを使用
+      const alertsData = process.env.NODE_ENV === 'development' ? [
+        {
+          id: '1',
+          title: '健診期限が近づいています',
+          severity: 'high',
+          created_at: new Date().toISOString(),
+          is_resolved: false
+        },
+        {
+          id: '2',
+          title: '未提出の書類があります',
+          severity: 'medium',
+          created_at: new Date(Date.now() - 86400000).toISOString(),
+          is_resolved: false
+        }
+      ] : (await supabase
         .from('alerts')
         .select('*')
         .eq('is_resolved', false)
         .order('created_at', { ascending: false })
-        .limit(5)
+        .limit(5)).data
 
       // Fetch recent activities
-      const { data: activitiesData } = await supabase
+      const activitiesData = process.env.NODE_ENV === 'development' ? [
+        {
+          id: '1',
+          action: '新規企業を追加しました',
+          created_at: new Date().toISOString()
+        },
+        {
+          id: '2',
+          action: 'ステータスを更新しました',
+          created_at: new Date(Date.now() - 3600000).toISOString()
+        }
+      ] : (await supabase
         .from('activity_logs')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(10)
+        .limit(10)).data
 
       if (companiesData) {
         setCompanies(companiesData)
@@ -162,7 +196,8 @@ export default function DashboardPage() {
         const thisYear = now.getFullYear()
         
         const byPhase = companiesData.reduce((acc, company) => {
-          acc[company.phase] = (acc[company.phase] || 0) + 1
+          const phase = company.phase || '営業'
+          acc[phase] = (acc[phase] || 0) + 1
           return acc
         }, {} as Record<string, number>)
 
@@ -305,7 +340,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {statCards.map((stat) => (
           <Card key={stat.title} className="hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

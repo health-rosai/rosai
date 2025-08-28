@@ -6,10 +6,24 @@ export class GmailClient {
   private gmail: any
 
   constructor() {
+    const clientId = process.env.GMAIL_CLIENT_ID || '386180119992-44v97i22lmi2ompkffnqmsu019r6jg6a.apps.googleusercontent.com'
+    const clientSecret = process.env.GMAIL_CLIENT_SECRET || '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'
+    const isDevelopment = process.env.NODE_ENV === 'development'
+    const baseUrl = isDevelopment ? 'http://localhost:3001' : 'https://rousai-system-fj56vpzpj-health-rosais-projects.vercel.app'
+    const redirectUri = process.env.GMAIL_REDIRECT_URI || `${baseUrl}/api/gmail/import`
+
+    if (!clientId || !clientSecret || !redirectUri) {
+      console.error('Gmail OAuth configuration missing:', {
+        clientId: !!clientId,
+        clientSecret: !!clientSecret,
+        redirectUri: !!redirectUri
+      })
+    }
+
     this.oauth2Client = new google.auth.OAuth2(
-      process.env.GMAIL_CLIENT_ID,
-      process.env.GMAIL_CLIENT_SECRET,
-      process.env.GMAIL_REDIRECT_URI
+      clientId,
+      clientSecret,
+      redirectUri
     )
 
     // 保存されたトークンを設定

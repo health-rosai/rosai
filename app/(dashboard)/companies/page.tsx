@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Company, STATUS_DEFINITIONS, StatusCode } from '@/types/database'
+import { dummyCompanies } from '@/scripts/seed-dummy-data'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -50,6 +51,14 @@ export default function CompaniesPage() {
 
   const fetchCompanies = async () => {
     try {
+      // 開発環境ではダミーデータを使用
+      if (process.env.NODE_ENV === 'development') {
+        setCompanies(dummyCompanies as Company[])
+        setLoading(false)
+        return
+      }
+
+      // 本番環境ではSupabaseから取得
       const { data, error } = await supabase
         .from('companies')
         .select('*')

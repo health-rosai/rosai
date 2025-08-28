@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { FAQ, FAQCategory, FAQStatus } from '@/types/database'
+import { dummyFAQs } from '@/scripts/seed-dummy-data'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -35,6 +36,14 @@ export default function FAQsPage() {
 
   const fetchFAQs = async () => {
     try {
+      // 開発環境ではダミーデータを使用
+      if (process.env.NODE_ENV === 'development') {
+        setFaqs(dummyFAQs.filter(faq => faq.is_published) as FAQ[])
+        setLoading(false)
+        return
+      }
+
+      // 本番環境ではSupabaseから取得
       let query = supabase
         .from('faqs')
         .select('*')
