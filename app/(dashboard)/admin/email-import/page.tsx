@@ -15,7 +15,11 @@ export default function EmailImportPage() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/gmail/import')
+      // Vercel Protection Bypassトークンを含めてリクエスト
+      const bypassToken = process.env.NEXT_PUBLIC_VERCEL_AUTOMATION_BYPASS_SECRET || 'HWz8EpqTutIUNcQGlOeWv7sgyegr7l4X'
+      const url = `/api/gmail/import${bypassToken ? `?x-vercel-protection-bypass=${bypassToken}` : ''}`
+      
+      const response = await fetch(url)
       const data = await response.json()
       
       if (data.authUrl) {
@@ -40,7 +44,10 @@ export default function EmailImportPage() {
       setTimeout(() => setImportProgress('FAQ候補を生成中...'), 20000)
       setTimeout(() => setImportProgress('処理を完了中...'), 30000)
 
-      const response = await fetch('/api/gmail/import', {
+      const bypassToken = process.env.NEXT_PUBLIC_VERCEL_AUTOMATION_BYPASS_SECRET || 'HWz8EpqTutIUNcQGlOeWv7sgyegr7l4X'
+      const url = `/api/gmail/import${bypassToken ? `?x-vercel-protection-bypass=${bypassToken}` : ''}`
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

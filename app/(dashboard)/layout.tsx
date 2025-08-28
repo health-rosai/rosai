@@ -63,8 +63,8 @@ export default function DashboardLayout({
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar for desktop */}
       <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
-        <div className="flex flex-col flex-1 min-h-0" style={{ backgroundColor: '#F3F4F6' }}>
-          <div className="flex items-center h-16 flex-shrink-0 px-4 border-b" style={{ backgroundColor: '#FFFFFF', borderColor: '#E5E7EB' }}>
+        <div className="flex flex-col flex-1 min-h-0 bg-gray-100">
+          <div className="flex items-center h-16 flex-shrink-0 px-4 border-b bg-white border-gray-200">
             <h1 className="text-lg font-bold text-gray-900 whitespace-nowrap">労災二次健診システム</h1>
           </div>
           
@@ -97,7 +97,7 @@ export default function DashboardLayout({
             </nav>
           </div>
 
-          <div className="flex-shrink-0 flex border-t p-4" style={{ backgroundColor: '#FFFFFF', borderColor: '#E5E7EB' }}>
+          <div className="flex-shrink-0 flex border-t p-4 bg-white border-gray-200">
             <div className="flex items-center w-full">
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-900">{profile?.full_name || user?.email}</p>
@@ -126,7 +126,7 @@ export default function DashboardLayout({
           />
           
           {/* Sidebar */}
-          <div className="fixed inset-y-0 left-0 z-[101] flex w-64 flex-col shadow-xl lg:hidden" style={{ backgroundColor: '#F3F4F6' }}>
+          <div className="fixed inset-y-0 left-0 z-[101] flex w-64 flex-col shadow-xl lg:hidden bg-gray-100">
             {/* Close button */}
             <div className="absolute right-0 top-0 -mr-14 p-1">
               <button
@@ -139,7 +139,7 @@ export default function DashboardLayout({
             </div>
             
             {/* Logo */}
-            <div className="flex h-16 items-center justify-between border-b px-4" style={{ backgroundColor: '#FFFFFF', borderColor: '#E5E7EB' }}>
+            <div className="flex h-16 items-center justify-between border-b px-4 bg-white border-gray-200">
               <h1 className="text-lg font-bold text-gray-900">労災二次健診システム</h1>
             </div>
             
@@ -175,7 +175,7 @@ export default function DashboardLayout({
             </nav>
             
             {/* User info & logout */}
-            <div className="border-t p-4" style={{ backgroundColor: '#FFFFFF', borderColor: '#E5E7EB' }}>
+            <div className="border-t p-4 bg-white border-gray-200">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-900">

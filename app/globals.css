@@ -24,6 +24,37 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
+    
+    /* Phase-based color system */
+    /* Phase 1: 面談 - Blue系 */
+    --phase-1: 217 91% 60%;
+    --phase-1-light: 214 95% 93%;
+    --phase-1-dark: 217 91% 45%;
+    --phase-1-foreground: 210 40% 98%;
+    
+    /* Phase 2: 二次健診 - Green系 */
+    --phase-2: 142 76% 36%;
+    --phase-2-light: 138 76% 97%;
+    --phase-2-dark: 142 84% 24%;
+    --phase-2-foreground: 210 40% 98%;
+    
+    /* Phase 3: 結果通知 - Orange系 */
+    --phase-3: 25 95% 53%;
+    --phase-3-light: 48 100% 96%;
+    --phase-3-dark: 25 95% 43%;
+    --phase-3-foreground: 210 40% 98%;
+    
+    /* Phase 4: 指導・相談 - Purple系 */
+    --phase-4: 262 83% 58%;
+    --phase-4-light: 263 69% 96%;
+    --phase-4-dark: 262 83% 43%;
+    --phase-4-foreground: 210 40% 98%;
+    
+    /* Phase 5: 要精査 - Red系 */
+    --phase-5: 0 84% 60%;
+    --phase-5-light: 0 86% 97%;
+    --phase-5-dark: 0 84% 45%;
+    --phase-5-foreground: 210 40% 98%;
   }
  
   .dark {
@@ -46,6 +77,27 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
+    
+    /* Dark mode phase colors */
+    --phase-1: 217 91% 70%;
+    --phase-1-light: 217 32% 17%;
+    --phase-1-dark: 217 91% 35%;
+    
+    --phase-2: 142 76% 46%;
+    --phase-2-light: 142 32% 17%;
+    --phase-2-dark: 142 84% 24%;
+    
+    --phase-3: 25 95% 63%;
+    --phase-3-light: 25 32% 17%;
+    --phase-3-dark: 25 95% 33%;
+    
+    --phase-4: 262 83% 68%;
+    --phase-4-light: 262 32% 17%;
+    --phase-4-dark: 262 83% 33%;
+    
+    --phase-5: 0 84% 70%;
+    --phase-5-light: 0 32% 17%;
+    --phase-5-dark: 0 84% 35%;
   }
 }
 
@@ -56,5 +108,127 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+  }
+}
+
+@layer components {
+  /* Phase-based utility classes */
+  .phase-1 {
+    background-color: hsl(var(--phase-1));
+    color: hsl(var(--phase-1-foreground));
+  }
+  .phase-1-light {
+    background-color: hsl(var(--phase-1-light));
+    color: hsl(var(--phase-1));
+  }
+  .phase-1-border {
+    border-color: hsl(var(--phase-1));
+  }
+
+  .phase-2 {
+    background-color: hsl(var(--phase-2));
+    color: hsl(var(--phase-2-foreground));
+  }
+  .phase-2-light {
+    background-color: hsl(var(--phase-2-light));
+    color: hsl(var(--phase-2));
+  }
+  .phase-2-border {
+    border-color: hsl(var(--phase-2));
+  }
+
+  .phase-3 {
+    background-color: hsl(var(--phase-3));
+    color: hsl(var(--phase-3-foreground));
+  }
+  .phase-3-light {
+    background-color: hsl(var(--phase-3-light));
+    color: hsl(var(--phase-3));
+  }
+  .phase-3-border {
+    border-color: hsl(var(--phase-3));
+  }
+
+  .phase-4 {
+    background-color: hsl(var(--phase-4));
+    color: hsl(var(--phase-4-foreground));
+  }
+  .phase-4-light {
+    background-color: hsl(var(--phase-4-light));
+    color: hsl(var(--phase-4));
+  }
+  .phase-4-border {
+    border-color: hsl(var(--phase-4));
+  }
+
+  .phase-5 {
+    background-color: hsl(var(--phase-5));
+    color: hsl(var(--phase-5-foreground));
+  }
+  .phase-5-light {
+    background-color: hsl(var(--phase-5-light));
+    color: hsl(var(--phase-5));
+  }
+  .phase-5-border {
+    border-color: hsl(var(--phase-5));
+  }
+
+  /* Hover effects */
+  .hover-phase-1:hover {
+    background-color: hsl(var(--phase-1-dark));
+  }
+  .hover-phase-2:hover {
+    background-color: hsl(var(--phase-2-dark));
+  }
+  .hover-phase-3:hover {
+    background-color: hsl(var(--phase-3-dark));
+  }
+  .hover-phase-4:hover {
+    background-color: hsl(var(--phase-4-dark));
+  }
+  .hover-phase-5:hover {
+    background-color: hsl(var(--phase-5-dark));
+  }
+
+  /* Animations */
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out;
+  }
+  .animate-slide-up {
+    animation: slide-up 0.5s ease-out;
+  }
+  .animate-scale-in {
+    animation: scale-in 0.3s ease-out;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }

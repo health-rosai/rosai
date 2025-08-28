@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { dummyCompanies } from '@/scripts/seed-dummy-data'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { MotionWrapper, StaggerList, StaggerItem, HoverScale, LoadingSpinner } from '@/components/ui/motion'
 import { STATUS_DEFINITIONS, type Company, type Alert, type StatusCode, type Phase } from '@/types/database'
 import { 
   Building2, 
@@ -269,9 +270,11 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
+      <MotionWrapper variant="fade">
+        <div className="flex items-center justify-center h-64">
+          <LoadingSpinner size={32} className="text-blue-600" />
+        </div>
+      </MotionWrapper>
     )
   }
 
@@ -333,16 +336,18 @@ export default function DashboardPage() {
   ]
 
   return (
-    <div className="space-y-6">
-      <div>
+    <MotionWrapper variant="slideUp" className="space-y-6">
+      <MotionWrapper variant="fade" delay={0.1}>
         <h1 className="text-2xl font-bold text-gray-900">ダッシュボード</h1>
         <p className="text-gray-600">労災二次健診進捗管理システム</p>
-      </div>
+      </MotionWrapper>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <StaggerList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {statCards.map((stat) => (
-          <Card key={stat.title} className="hover:shadow-lg transition-shadow">
+          <StaggerItem key={stat.title}>
+            <HoverScale>
+              <Card className="hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-600">
                 {stat.title}
@@ -361,15 +366,19 @@ export default function DashboardPage() {
                 </span>
                 <span className="text-xs text-gray-500 ml-2">前月比</span>
               </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </HoverScale>
+        </StaggerItem>
         ))}
-      </div>
+      </StaggerList>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        {/* Status Progression Line Chart */}
-        <Card className="xl:col-span-2">
+      <MotionWrapper variant="slideUp" delay={0.3}>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          {/* Status Progression Line Chart */}
+          <HoverScale>
+            <Card className="xl:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
@@ -406,13 +415,15 @@ export default function DashboardPage() {
                 <Line type="monotone" dataKey="労災二次健診" stroke="#EF4444" strokeWidth={2} />
                 <Line type="monotone" dataKey="請求" stroke="#6366F1" strokeWidth={2} />
                 <Line type="monotone" dataKey="完了" stroke="#059669" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </HoverScale>
 
-        {/* Companies by Status Bar Chart */}
-        <Card>
+          {/* Companies by Status Bar Chart */}
+          <HoverScale>
+            <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5" />
@@ -433,14 +444,16 @@ export default function DashboardPage() {
                 />
                 <YAxis fontSize={12} />
                 <Tooltip />
-                <Bar dataKey="count" fill="#3B82F6" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+                  <Bar dataKey="count" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </HoverScale>
 
-        {/* Phase Distribution Pie Chart */}
-        <Card>
+          {/* Phase Distribution Pie Chart */}
+          <HoverScale>
+            <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Target className="h-5 w-5" />
@@ -465,17 +478,21 @@ export default function DashboardPage() {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </HoverScale>
+        </div>
+      </MotionWrapper>
 
       {/* Performance Metrics & Activities */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Performance Metrics */}
-        <Card>
+      <MotionWrapper variant="slideUp" delay={0.4}>
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          {/* Performance Metrics */}
+          <HoverScale>
+            <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Zap className="h-5 w-5" />
@@ -512,12 +529,14 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </HoverScale>
 
-        {/* Recent Alerts */}
-        <Card>
+          {/* Recent Alerts */}
+          <HoverScale>
+            <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5" />
@@ -554,12 +573,14 @@ export default function DashboardPage() {
               ) : (
                 <p className="text-sm text-gray-500">アラートはありません</p>
               )}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </HoverScale>
 
-        {/* Recent Activity Log */}
-        <Card>
+          {/* Recent Activity Log */}
+          <HoverScale>
+            <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Activity className="h-5 w-5" />
@@ -586,13 +607,17 @@ export default function DashboardPage() {
               ) : (
                 <p className="text-sm text-gray-500">アクティビティはありません</p>
               )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+              </div>
+            </CardContent>
+          </Card>
+        </HoverScale>
+        </div>
+      </MotionWrapper>
 
       {/* Recent Companies */}
-      <Card>
+      <MotionWrapper variant="slideUp" delay={0.5}>
+        <HoverScale>
+          <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
@@ -628,8 +653,10 @@ export default function DashboardPage() {
               </tbody>
             </table>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+      </HoverScale>
+    </MotionWrapper>
+  </MotionWrapper>
   )
 }

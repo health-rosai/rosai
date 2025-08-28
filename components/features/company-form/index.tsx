@@ -32,6 +32,8 @@ export default function CompanyForm({ company, mode }: CompanyFormProps) {
     explanation_method: company?.explanation_method || 'online',
     needs_explanation: company?.needs_explanation || false,
     notes: company?.notes || '',
+    agency_id: company?.agency_id || null,
+    assigned_staff_id: company?.assigned_staff_id || null,
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,13 +42,32 @@ export default function CompanyForm({ company, mode }: CompanyFormProps) {
 
     try {
       if (mode === 'create') {
+        // フォームデータから必要なフィールドのみを抽出
+        const insertData = {
+          name: formData.name,
+          code: formData.code || null,
+          current_status: formData.current_status,
+          contact_person: formData.contact_person || null,
+          contact_email: formData.contact_email || null,
+          contact_phone: formData.contact_phone || null,
+          support_level: formData.support_level,
+          explanation_method: formData.explanation_method,
+          needs_explanation: formData.needs_explanation,
+          notes: formData.notes || null,
+          agency_id: formData.agency_id,
+          assigned_staff_id: formData.assigned_staff_id,
+        }
+
         const { data, error } = await supabase
           .from('companies')
-          .insert([formData])
+          .insert([insertData])
           .select()
           .single()
 
-        if (error) throw error
+        if (error) {
+          console.error('Database error:', error)
+          throw error
+        }
 
         toast.success('企業を登録しました')
         router.push(`/companies/${data.id}`)
@@ -76,9 +97,10 @@ export default function CompanyForm({ company, mode }: CompanyFormProps) {
         toast.success('企業情報を更新しました')
         router.push(`/companies/${company.id}`)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error)
-      toast.error('エラーが発生しました')
+      const errorMessage = error?.message || 'エラーが発生しました'
+      toast.error(`エラー: ${errorMessage}`)
     } finally {
       setLoading(false)
     }

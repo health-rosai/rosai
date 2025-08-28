@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Company, StatusCode } from '@/types/database'
 import StatusKanban from '@/components/features/status-kanban'
+import { MotionWrapper, LoadingSpinner } from '@/components/ui/motion'
 import { toast } from 'sonner'
 
 export default function KanbanPage() {
@@ -104,24 +105,28 @@ export default function KanbanPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
+      <MotionWrapper variant="fade">
+        <div className="flex items-center justify-center h-64">
+          <LoadingSpinner size={32} className="text-blue-600" />
+        </div>
+      </MotionWrapper>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <div>
+    <MotionWrapper variant="slideUp" className="space-y-6">
+      <MotionWrapper variant="fade" delay={0.1}>
         <h1 className="text-2xl font-bold text-gray-900">ステータスカンバン</h1>
         <p className="text-gray-600">ドラッグ&ドロップでステータスを変更できます</p>
-      </div>
+      </MotionWrapper>
 
-      <StatusKanban
-        companies={companies}
-        onStatusChange={handleStatusChange}
-        onCompanyClick={handleCompanyClick}
-      />
-    </div>
+      <MotionWrapper variant="slideUp" delay={0.2}>
+        <StatusKanban
+          companies={companies}
+          onStatusChange={handleStatusChange}
+          onCompanyClick={handleCompanyClick}
+        />
+      </MotionWrapper>
+    </MotionWrapper>
   )
 }

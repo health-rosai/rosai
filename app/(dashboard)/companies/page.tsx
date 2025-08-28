@@ -9,6 +9,7 @@ import { dummyCompanies } from '@/scripts/seed-dummy-data'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { MotionWrapper, StaggerList, StaggerItem, HoverScale, LoadingSpinner } from '@/components/ui/motion'
 import {
   Table,
   TableBody,
@@ -145,22 +146,25 @@ export default function CompaniesPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
+      <MotionWrapper variant="fade">
+        <div className="flex items-center justify-center h-64">
+          <LoadingSpinner size={32} className="text-blue-600" />
+        </div>
+      </MotionWrapper>
     )
   }
 
   const phases = ['営業', '提案', '契約', '健診・判定', '労災二次健診', '請求', '完了', '特殊']
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">企業管理</h1>
-          <p className="text-gray-600">全 {filteredCompanies.length} 社</p>
-        </div>
-        <div className="flex gap-2">
+    <MotionWrapper variant="slideUp" className="space-y-6">
+      <MotionWrapper variant="fade" delay={0.1}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">企業管理</h1>
+            <p className="text-gray-600">全 {filteredCompanies.length} 社</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
           <Button onClick={exportCSV} variant="outline">
             <Download className="h-4 w-4 mr-2" />
             CSV出力
@@ -171,13 +175,16 @@ export default function CompaniesPage() {
               新規企業登録
             </Button>
           </Link>
+          </div>
         </div>
-      </div>
+      </MotionWrapper>
 
       {/* フィルター */}
-      <Card>
+      <MotionWrapper variant="slideUp" delay={0.2}>
+        <HoverScale>
+          <Card>
         <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
@@ -206,16 +213,21 @@ export default function CompaniesPage() {
               {Object.entries(STATUS_DEFINITIONS).map(([code, def]) => (
                 <option key={code} value={code}>{def.name}</option>
               ))}
-            </select>
-          </div>
-        </CardContent>
-      </Card>
+              </select>
+            </div>
+          </CardContent>
+        </Card>
+      </HoverScale>
+    </MotionWrapper>
 
       {/* 企業テーブル */}
-      <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
+      <MotionWrapper variant="slideUp" delay={0.3}>
+        <HoverScale>
+          <Card>
+          <CardContent className="p-0">
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>企業名</TableHead>
@@ -275,11 +287,69 @@ export default function CompaniesPage() {
                     </TableCell>
                   </TableRow>
                 ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-3 p-4">
+              <StaggerList>
+                {filteredCompanies.map((company) => (
+                  <StaggerItem key={company.id}>
+                    <HoverScale>
+                      <Card className="p-4 hover:shadow-md transition-shadow">
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <h3 className="font-medium text-gray-900">{company.name}</h3>
+                            {company.code && (
+                              <p className="text-sm text-gray-500">{company.code}</p>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <Link href={`/companies/${company.id}`}>
+                              <Button variant="ghost" size="sm">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                            <Link href={`/companies/${company.id}/edit`}>
+                              <Button variant="ghost" size="sm">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <p className="text-gray-500">ステータス</p>
+                            <Badge className={getStatusColor(company.current_status)}>
+                              {STATUS_DEFINITIONS[company.current_status]?.name || company.current_status}
+                            </Badge>
+                          </div>
+                          <div>
+                            <p className="text-gray-500">フェーズ</p>
+                            <p className="font-medium">{company.phase}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-500">担当者</p>
+                            <p className="font-medium">{company.contact_person || '-'}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-500">最終更新</p>
+                            <p className="font-medium">
+                              {format(new Date(company.updated_at), 'MM/dd HH:mm', { locale: ja })}
+                            </p>
+                          </div>
+                        </div>
+                      </Card>
+                    </HoverScale>
+                  </StaggerItem>
+                ))}
+              </StaggerList>
+            </div>
+          </CardContent>
+        </Card>
+      </HoverScale>
+    </MotionWrapper>
+  </MotionWrapper>
   )
 }
