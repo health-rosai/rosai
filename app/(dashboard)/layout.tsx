@@ -1,32 +1,36 @@
 'use client'
 
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { useAuth } from '@/hooks/use-auth'
-import { Button } from '@/components/ui/button'
-import {
-  LayoutDashboard,
-  Building2,
-  Mail,
-  FileText,
-  LogOut,
-  Menu,
-  X,
-  BarChart3,
-  Layers,
-  HelpCircle,
-} from 'lucide-react'
-import { toast } from 'sonner'
 
-const navigation = [
-  { name: 'ダッシュボード', href: '/dashboard', icon: LayoutDashboard },
-  { name: '企業管理', href: '/companies', icon: Building2 },
-  { name: 'ステータス進捗管理', href: '/kanban', icon: Layers },
-  { name: 'レポート', href: '/reports', icon: BarChart3 },
-  { name: 'メール管理', href: '/admin/email-import', icon: Mail },
-  { name: 'FAQ管理', href: '/faqs', icon: HelpCircle },
+const menuSections = [
+  {
+    title: 'メインメニュー',
+    items: [
+      { name: 'ダッシュボード', href: '/dashboard', emoji: '📊' },
+      { name: '企業管理', href: '/companies', emoji: '🏢' },
+      { name: 'ステータス進捗管理', href: '/kanban', emoji: '📋' },
+      { name: 'ガントチャート', href: '/gantt', emoji: '📅' },
+      { name: 'レポート', href: '/reports', emoji: '📈' },
+      { name: 'メール管理', href: '/admin/email-import', emoji: '✉️' },
+      { name: 'FAQ管理', href: '/faqs', emoji: '❓' },
+    ],
+  },
+  {
+    title: 'AI機能',
+    items: [
+      { name: 'AIアシスタント', href: '/ai-assistant', emoji: '🤖' },
+      { name: '業務効率化のためのAI支援機能', href: '/ai-analysis', emoji: '🔍' },
+    ],
+  },
+  {
+    title: 'システム',
+    items: [
+      { name: '設定', href: '/settings', emoji: '⚙️' },
+      { name: 'ヘルプ', href: '/help', emoji: '📚' },
+    ],
+  },
 ]
 
 export default function DashboardLayout({
@@ -34,190 +38,215 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
-  const router = useRouter()
-  const { user, profile } = useAuth()
-  const supabase = createClient()
-
-  const handleLogout = async () => {
-    // 開発環境用のログアウト処理
-    if (process.env.NODE_ENV === 'development') {
-      await fetch('/api/dev-login', { method: 'DELETE' })
-      toast.success('ログアウトしました')
-      router.push('/login')
-      return
-    }
-
-    // 本番環境用のSupabaseログアウト
-    const { error } = await supabase.auth.signOut()
-    if (error) {
-      toast.error('ログアウトに失敗しました')
-    } else {
-      toast.success('ログアウトしました')
-      router.push('/login')
-    }
-  }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar for desktop */}
-      <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
-        <div className="flex flex-col flex-1 min-h-0 bg-gray-100">
-          <div className="flex items-center h-16 flex-shrink-0 px-4 border-b bg-white border-gray-200">
-            <h1 className="text-lg font-bold text-gray-900 whitespace-nowrap">労災二次健診システム</h1>
-          </div>
-          
-          <div className="flex-1 flex flex-col overflow-y-auto">
-            <nav className="flex-1 px-2 py-4 space-y-1">
-              {navigation.map((item) => {
-                const isActive = pathname === item.href
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`
-                      group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors
-                      ${isActive
-                        ? 'bg-blue-50 text-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-                      }
-                    `}
-                  >
-                    <item.icon
-                      className={`
-                        mr-3 flex-shrink-0 h-5 w-5
-                        ${isActive ? 'text-blue-700' : 'text-gray-400 group-hover:text-gray-500'}
-                      `}
-                    />
-                    <span className="truncate">{item.name}</span>
-                  </Link>
-                )
-              })}
-            </nav>
-          </div>
-
-          <div className="flex-shrink-0 flex border-t p-4 bg-white border-gray-200">
-            <div className="flex items-center w-full">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">{profile?.full_name || user?.email}</p>
-                <p className="text-xs text-gray-500">{profile?.role || 'スタッフ'}</p>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogout}
-                className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+    <div 
+      style={{ 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
+      {/* Header */}
+      <header 
+        style={{ 
+          background: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+          padding: '1rem 2rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}
+      >
+        <div>
+          <h1 style={{ fontSize: '1.5rem', color: '#333', fontWeight: '600', margin: 0 }}>
+            労災二次健診システム
+          </h1>
+          <p style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.25rem' }}>
+            Management System
+          </p>
         </div>
-      </div>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <button 
+            style={{
+              background: '#f3f4f6',
+              border: 'none',
+              padding: '0.5rem 1rem',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#e5e7eb';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#f3f4f6';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <span>🔔</span>
+            <span>通知</span>
+          </button>
+          <button 
+            style={{
+              background: '#f3f4f6',
+              border: 'none',
+              padding: '0.5rem 1rem',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#e5e7eb';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#f3f4f6';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <span>👤</span>
+            <span>管理者</span>
+          </button>
+        </div>
+      </header>
 
-      {/* Mobile sidebar */}
-      {sidebarOpen && (
-        <>
-          {/* Overlay */}
-          <div 
-            className="fixed inset-0 z-[100] bg-black bg-opacity-50 lg:hidden" 
-            onClick={() => setSidebarOpen(false)} 
-          />
-          
-          {/* Sidebar */}
-          <div className="fixed inset-y-0 left-0 z-[101] flex w-64 flex-col shadow-xl lg:hidden bg-gray-100">
-            {/* Close button */}
-            <div className="absolute right-0 top-0 -mr-14 p-1">
-              <button
-                type="button"
-                className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md"
-                onClick={() => setSidebarOpen(false)}
-              >
-                <X className="h-6 w-6 text-gray-600" />
-              </button>
-            </div>
-            
-            {/* Logo */}
-            <div className="flex h-16 items-center justify-between border-b px-4 bg-white border-gray-200">
-              <h1 className="text-lg font-bold text-gray-900">労災二次健診システム</h1>
-            </div>
-            
-            {/* Navigation */}
-            <nav className="flex-1 overflow-y-auto px-4 py-4">
-              <div className="space-y-1">
-                {navigation.map((item) => {
+      {/* Main Container */}
+      <div 
+        style={{
+          display: 'flex',
+          flex: 1,
+          margin: '1rem',
+          gap: '1rem',
+          maxWidth: '1400px',
+          width: '100%',
+          marginLeft: 'auto',
+          marginRight: 'auto'
+        }}
+      >
+        {/* Sidebar */}
+        <aside 
+          style={{
+            width: '280px',
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '16px',
+            padding: '1.5rem',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+            overflowY: 'auto'
+          }}
+        >
+          {menuSections.map((section) => (
+            <div key={section.title} style={{ marginBottom: '2rem' }}>
+              <h3 style={{
+                fontSize: '0.75rem',
+                fontWeight: '600',
+                color: '#9ca3af',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '0.75rem'
+              }}>
+                {section.title}
+              </h3>
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                {section.items.map((item) => {
                   const isActive = pathname === item.href
                   return (
                     <Link
-                      key={item.name}
+                      key={item.href}
                       href={item.href}
-                      onClick={() => setSidebarOpen(false)}
-                      className={`
-                        flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors
-                        ${isActive
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '0.75rem 1rem',
+                        borderRadius: '12px',
+                        color: isActive ? 'white' : '#4b5563',
+                        textDecoration: 'none',
+                        transition: 'all 0.3s ease',
+                        background: isActive ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                        boxShadow: isActive ? '0 4px 12px rgba(102, 126, 234, 0.4)' : 'none',
+                        transform: isActive ? 'translateX(4px)' : 'translateX(0)'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                          e.currentTarget.style.color = 'white';
+                          e.currentTarget.style.transform = 'translateX(4px)';
                         }
-                      `}
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.color = '#4b5563';
+                          e.currentTarget.style.transform = 'translateX(0)';
+                        }
+                      }}
                     >
-                      <item.icon
-                        className={`
-                          mr-3 h-5 w-5 flex-shrink-0
-                          ${isActive ? 'text-blue-700' : 'text-gray-400'}
-                        `}
-                      />
-                      <span>{item.name}</span>
+                      <span style={{ fontSize: '1.25rem', marginRight: '0.75rem' }}>{item.emoji}</span>
+                      <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>{item.name}</span>
                     </Link>
                   )
                 })}
-              </div>
-            </nav>
-            
-            {/* User info & logout */}
-            <div className="border-t p-4 bg-white border-gray-200">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    {profile?.full_name || user?.email || 'テストユーザー'}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {profile?.role || 'スタッフ'}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleLogout}
-                  className="ml-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </div>
+              </nav>
             </div>
-          </div>
-        </>
-      )}
+          ))}
 
-      {/* Main content */}
-      <div className="lg:pl-64 flex flex-col flex-1">
-        <div className="sticky top-0 z-[99] lg:hidden flex items-center h-16 px-4 bg-white border-b border-gray-200">
-          <button
-            type="button"
-            className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-          <h1 className="ml-4 text-lg font-semibold text-gray-900">労災二次健診システム</h1>
-        </div>
-        
-        <main className="flex-1">
-          <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              {children}
+          {/* AI Assistant Card */}
+          <div style={{
+            padding: '1rem',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #f3e7fc 0%, #fce7f3 100%)',
+            border: '1px solid #e9d5ff',
+            marginTop: '2rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+              <span style={{ fontSize: '1.5rem' }}>🤖</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151' }}>
+                AIアシスタント
+              </span>
             </div>
+            <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '1rem' }}>
+              業務効率化のためのAI支援機能を活用しましょう
+            </p>
+            <button style={{
+              width: '100%',
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.75rem',
+              fontWeight: '500',
+              color: '#7c3aed',
+              background: 'rgba(139, 92, 246, 0.1)',
+              border: '1px solid rgba(139, 92, 246, 0.2)',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease'
+            }}>
+              詳細を見る
+            </button>
           </div>
+        </aside>
+
+        {/* Main Content */}
+        <main 
+          style={{
+            flex: 1,
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '16px',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+            overflow: 'hidden'
+          }}
+        >
+          {children}
         </main>
       </div>
     </div>

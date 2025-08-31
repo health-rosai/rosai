@@ -109,7 +109,7 @@ export class FAQGenerator {
   }
 
   private async generateWithAI(emails: any[]): Promise<GeneratedFAQ[]> {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
     const emailsData = emails.map(e => ({
       subject: e.subject,

@@ -4,8 +4,12 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Company, StatusCode } from '@/types/database'
+import { dummyCompanies } from '@/scripts/seed-dummy-data'
 import StatusKanban from '@/components/features/status-kanban'
 import { MotionWrapper, LoadingSpinner } from '@/components/ui/motion'
+import { PremiumCard, PremiumCardHeader, PremiumCardTitle, PremiumCardDescription } from '@/components/ui/premium-card'
+import { PremiumButton } from '@/components/ui/premium-button'
+import { Plus, Filter, BarChart3, TrendingUp } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function KanbanPage() {
@@ -40,19 +44,34 @@ export default function KanbanPage() {
 
   const fetchCompanies = async () => {
     try {
+      // 開発環境ではダミーデータを使用
+      if (process.env.NODE_ENV === 'development') {
+        setCompanies(dummyCompanies as Company[])
+        setLoading(false)
+        return
+      }
+
+      // 本番環境ではSupabaseから取得
       const { data, error } = await supabase
         .from('companies')
         .select('*')
         .order('updated_at', { ascending: false })
 
       if (error) {
-        console.error('Error fetching companies:', error)
+        console.error('Error fetching companies:', error.message || error)
+        toast.error('企業データの取得に失敗しました')
+        setCompanies([])
         return
       }
 
       setCompanies(data || [])
+      if (!data || data.length === 0) {
+        console.log('No companies found in database')
+      }
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Unexpected error:', error)
+      toast.error('予期しないエラーが発生しました')
+      setCompanies([])
     } finally {
       setLoading(false)
     }
@@ -105,28 +124,89 @@ export default function KanbanPage() {
 
   if (loading) {
     return (
-      <MotionWrapper variant="fade">
-        <div className="flex items-center justify-center h-64">
-          <LoadingSpinner size={32} className="text-blue-600" />
-        </div>
-      </MotionWrapper>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background-secondary to-background-tertiary">
+        <MotionWrapper variant="fade" className="h-full flex items-center justify-center">
+          <PremiumCard variant="glass" className="p-8">
+            <div className="flex flex-col items-center space-y-4">
+              <LoadingSpinner size={48} className="text-primary" />
+              <div className="text-center">
+                <h3 className="font-semibold text-lg text-foreground">データを読み込み中</h3>
+                <p className="text-sm text-foreground-secondary mt-1">かんばんボードを準備しています...</p>
+              </div>
+            </div>
+          </PremiumCard>
+        </MotionWrapper>
+      </div>
     )
   }
 
   return (
-    <MotionWrapper variant="slideUp" className="space-y-6">
-      <MotionWrapper variant="fade" delay={0.1}>
-        <h1 className="text-2xl font-bold text-gray-900">ステータスカンバン</h1>
-        <p className="text-gray-600">ドラッグ&ドロップでステータスを変更できます</p>
-      </MotionWrapper>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background-secondary to-background-tertiary p-6">
+      <MotionWrapper variant="slideUp" className="max-w-full">
+        {/* Header Section */}
+        <MotionWrapper variant="fade" delay={0.1}>
+          <div className="mb-8">
+            <PremiumCard variant="glass" className="p-8">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 rounded-xl bg-primary/10 text-primary">
+                      <BarChart3 className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
+                        ステータスカンバン
+                      </h1>
+                      <p className="text-foreground-secondary mt-1">
+                        ドラッグ&ドロップで簡単にステータスを変更
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Quick Stats */}
+                  <div className="flex items-center gap-4 pt-2">
+                    <div className="flex items-center gap-2 text-sm text-foreground-secondary">
+                      <TrendingUp className="h-4 w-4 text-emerald-600" />
+                      <span>総企業数: <strong className="text-foreground">{companies.length}</strong></span>
+                    </div>
+                    <div className="h-4 w-px bg-border"></div>
+                    <div className="text-sm text-foreground-secondary">
+                      リアルタイム同期中
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-3">
+                  <PremiumButton 
+                    variant="ghost" 
+                    leftIcon={<Filter className="h-4 w-4" />}
+                    className="glass-card"
+                  >
+                    フィルター
+                  </PremiumButton>
+                  <PremiumButton 
+                    variant="primary" 
+                    leftIcon={<Plus className="h-4 w-4" />}
+                    onClick={() => router.push('/companies/new')}
+                    className="shadow-lg hover:shadow-xl"
+                  >
+                    新規企業
+                  </PremiumButton>
+                </div>
+              </div>
+            </PremiumCard>
+          </div>
+        </MotionWrapper>
 
-      <MotionWrapper variant="slideUp" delay={0.2}>
-        <StatusKanban
-          companies={companies}
-          onStatusChange={handleStatusChange}
-          onCompanyClick={handleCompanyClick}
-        />
+        {/* Kanban Board */}
+        <MotionWrapper variant="slideUp" delay={0.2}>
+          <StatusKanban
+            companies={companies}
+            onStatusChange={handleStatusChange}
+            onCompanyClick={handleCompanyClick}
+          />
+        </MotionWrapper>
       </MotionWrapper>
-    </MotionWrapper>
+    </div>
   )
 }

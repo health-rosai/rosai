@@ -13,6 +13,15 @@ export function middleware(request: NextRequest) {
       return NextResponse.next()
     }
 
+    // ルートパスの場合、ログイン状態に応じてリダイレクト
+    if (path === '/') {
+      if (!devUser) {
+        return NextResponse.redirect(new URL('/login', request.url))
+      } else {
+        return NextResponse.redirect(new URL('/dashboard', request.url))
+      }
+    }
+
     // 認証が必要なページへのアクセス
     if (path.startsWith('/dashboard') || 
         path.startsWith('/admin') || 

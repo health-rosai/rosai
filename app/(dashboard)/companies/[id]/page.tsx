@@ -4,34 +4,13 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { Company, StatusHistory, STATUS_DEFINITIONS, Alert, StatusCode } from '@/types/database'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  ArrowLeft,
-  Edit,
-  Building2,
-  User,
-  Mail,
-  Phone,
-  Calendar,
-  AlertCircle,
-  History,
-  FileText,
-  ChevronRight
-} from 'lucide-react'
-import { format } from 'date-fns'
-import { ja } from 'date-fns/locale'
 
 export default function CompanyDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const [company, setCompany] = useState<Company | null>(null)
-  const [statusHistory, setStatusHistory] = useState<StatusHistory[]>([])
-  const [alerts, setAlerts] = useState<Alert[]>([])
+  const [company, setCompany] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
@@ -42,48 +21,32 @@ export default function CompanyDetailPage() {
 
   const fetchCompanyData = async (id: string) => {
     try {
-      // 企業情報取得
-      const { data: companyData, error: companyError } = await supabase
+      setLoading(true)
+      setError(null)
+      
+      // Supabaseから企業データを取得
+      const { data, error } = await supabase
         .from('companies')
         .select('*')
         .eq('id', id)
         .single()
 
-      if (companyError) {
-        console.error('Error fetching company:', companyError)
+      if (error) {
+        console.error('Error fetching company:', error)
+        setError('企業データの取得に失敗しました')
         return
       }
 
-      setCompany(companyData)
-
-      // ステータス履歴取得
-      const { data: historyData } = await supabase
-        .from('status_histories')
-        .select('*')
-        .eq('company_id', id)
-        .order('created_at', { ascending: false })
-        .limit(10)
-
-      setStatusHistory(historyData || [])
-
-      // アラート取得
-      const { data: alertData } = await supabase
-        .from('alerts')
-        .select('*')
-        .eq('company_id', id)
-        .eq('is_resolved', false)
-        .order('created_at', { ascending: false })
-
-      setAlerts(alertData || [])
-    } catch (error) {
-      console.error('Error:', error)
+      setCompany(data)
+    } catch (err) {
+      console.error('Error:', err)
+      setError('予期しないエラーが発生しました')
     } finally {
       setLoading(false)
     }
   }
 
-  const getStatusColor = (status: string) => {
-    const phase = STATUS_DEFINITIONS[status as StatusCode]?.phase
+  const getStatusColor = (phase: string) => {
     switch (phase) {
       case '営業': return 'bg-blue-100 text-blue-800'
       case '提案': return 'bg-purple-100 text-purple-800'
@@ -92,25 +55,63 @@ export default function CompanyDetailPage() {
       case '労災二次健診': return 'bg-orange-100 text-orange-800'
       case '請求': return 'bg-pink-100 text-pink-800'
       case '完了': return 'bg-gray-100 text-gray-800'
-      case '特殊': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
 
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'critical': return 'text-red-600 bg-red-50'
-      case 'high': return 'text-orange-600 bg-orange-50'
-      case 'medium': return 'text-yellow-600 bg-yellow-50'
-      case 'low': return 'text-blue-600 bg-blue-50'
-      default: return 'text-gray-600 bg-gray-50'
+  const getSupportLevelLabel = (level: string) => {
+    switch (level) {
+      case 'full': return 'フルサポート'
+      case 'partial': return '部分サポート'
+      case 'referral_only': return '紹介のみ'
+      default: return '未設定'
+    }
+  }
+
+  const getExplanationMethodLabel = (method: string) => {
+    switch (method) {
+      case 'online': return 'オンライン'
+      case 'visit': return '訪問'
+      case 'document': return '資料送付'
+      default: return '未設定'
+    }
+  }
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return '未設定'
+    try {
+      return new Date(dateString).toLocaleDateString('ja-JP')
+    } catch {
+      return '未設定'
+    }
+  }
+
+  const formatDateTime = (dateString: string | null) => {
+    if (!dateString) return '未設定'
+    try {
+      return new Date(dateString).toLocaleString('ja-JP')
+    } catch {
+      return '未設定'
     }
   }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-500 mb-4">{error}</p>
+        <Link href="/dashboard">
+          <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+            ダッシュボードに戻る
+          </button>
+        </Link>
       </div>
     )
   }
@@ -118,241 +119,179 @@ export default function CompanyDetailPage() {
   if (!company) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">企業が見つかりません</p>
-        <Link href="/companies">
-          <Button className="mt-4">企業一覧に戻る</Button>
+        <p className="text-gray-500 mb-4">企業が見つかりません</p>
+        <Link href="/dashboard">
+          <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+            ダッシュボードに戻る
+          </button>
         </Link>
       </div>
     )
   }
 
-  const currentStatusDef = STATUS_DEFINITIONS[company.current_status]
-
   return (
-    <div className="space-y-6">
+    <div className="p-8 space-y-6">
       {/* ヘッダー */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <Link href="/companies">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              戻る
-            </Button>
+          <Link href="/dashboard">
+            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{company.name}</h1>
+            <h1 className="text-3xl font-bold text-gray-900">{company.name || '企業名未設定'}</h1>
             {company.code && (
               <p className="text-sm text-gray-500">企業コード: {company.code}</p>
             )}
           </div>
         </div>
-        <Link href={`/companies/${company.id}/edit`}>
-          <Button>
-            <Edit className="h-4 w-4 mr-2" />
-            編集
-          </Button>
-        </Link>
+        <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-medium hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+          編集
+        </button>
       </div>
-
-      {/* アラート表示 */}
-      {alerts.length > 0 && (
-        <Card className="border-orange-200 bg-orange-50">
-          <CardHeader>
-            <CardTitle className="text-orange-800 flex items-center gap-2">
-              <AlertCircle className="h-5 w-5" />
-              未解決のアラート
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {alerts.map((alert) => (
-                <div key={alert.id} className={`p-3 rounded-lg ${getSeverityColor(alert.severity || 'medium')}`}>
-                  <div className="font-medium">{alert.title}</div>
-                  {alert.description && (
-                    <div className="text-sm mt-1">{alert.description}</div>
-                  )}
-                  <div className="text-xs mt-2">
-                    {format(new Date(alert.created_at), 'yyyy/MM/dd HH:mm', { locale: ja })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* メイン情報 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* ステータス情報 */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle>現在のステータス</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <Badge className={`${getStatusColor(company.current_status)} text-lg px-3 py-1`}>
-                  {currentStatusDef?.name || company.current_status}
-                </Badge>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">フェーズ</p>
-                <p className="text-lg font-medium">{company.phase}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">説明</p>
-                <p className="text-sm">{currentStatusDef?.description}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">最終更新</p>
-                <p className="text-sm">
-                  {format(new Date(company.status_changed_at), 'yyyy/MM/dd HH:mm', { locale: ja })}
+        {/* ステータス情報カード */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">ステータス情報</h2>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-gray-500 mb-1">フェーズ</p>
+              <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(company.phase || '')}`}>
+                {company.phase || '未設定'}
+              </span>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 mb-1">現在のステータス</p>
+              <p className="text-lg font-medium">{company.current_status || '未設定'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 mb-1">最終更新</p>
+              <p className="text-sm">{formatDateTime(company.status_changed_at)}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 連絡先情報カード */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">連絡先情報</h2>
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm text-gray-500 mb-1">担当者</p>
+              <p className="font-medium">{company.contact_person || '未設定'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 mb-1">メールアドレス</p>
+              <p className="font-medium text-blue-600">{company.contact_email || '未設定'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 mb-1">電話番号</p>
+              <p className="font-medium">{company.contact_phone || '未設定'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* サポート情報カード */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">サポート情報</h2>
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm text-gray-500 mb-1">サポートレベル</p>
+              <p className="font-medium">{getSupportLevelLabel(company.support_level || '')}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 mb-1">説明方法</p>
+              <p className="font-medium">{getExplanationMethodLabel(company.explanation_method || '')}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 mb-1">登録日</p>
+              <p className="font-medium">{formatDate(company.created_at)}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 追加情報 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 企業情報カード */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">企業情報</h2>
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm text-gray-500 mb-1">住所</p>
+              <p className="font-medium">{company.address || '未設定'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 mb-1">ウェブサイト</p>
+              {company.website ? (
+                <a href={company.website} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline">
+                  {company.website}
+                </a>
+              ) : (
+                <p className="font-medium">未設定</p>
+              )}
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 mb-1">業種</p>
+              <p className="font-medium">{company.industry || '未設定'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 健診情報カード */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">健診情報</h2>
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm text-gray-500 mb-1">対象者数</p>
+              <p className="font-medium">{company.target_count || 0} 名</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 mb-1">受診済み数</p>
+              <p className="font-medium">{company.completed_count || 0} 名</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 mb-1">進捗率</p>
+              <div className="mt-2">
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full"
+                    style={{ width: `${company.target_count ? (company.completed_count || 0) / company.target_count * 100 : 0}%` }}
+                  ></div>
+                </div>
+                <p className="text-sm text-gray-600 mt-1">
+                  {company.target_count ? Math.round((company.completed_count || 0) / company.target_count * 100) : 0}%
                 </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* 基本情報 */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>基本情報</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <User className="h-4 w-4 text-gray-400 mt-1" />
-                  <div>
-                    <p className="text-sm text-gray-500">担当者</p>
-                    <p className="font-medium">{company.contact_person || '未設定'}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Mail className="h-4 w-4 text-gray-400 mt-1" />
-                  <div>
-                    <p className="text-sm text-gray-500">メールアドレス</p>
-                    <p className="font-medium">{company.contact_email || '未設定'}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Phone className="h-4 w-4 text-gray-400 mt-1" />
-                  <div>
-                    <p className="text-sm text-gray-500">電話番号</p>
-                    <p className="font-medium">{company.contact_phone || '未設定'}</p>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-gray-500">サポートレベル</p>
-                  <p className="font-medium">
-                    {company.support_level === 'full' ? 'フルサポート' :
-                     company.support_level === 'partial' ? '部分サポート' :
-                     company.support_level === 'referral_only' ? '紹介のみ' : '未設定'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">説明方法</p>
-                  <p className="font-medium">
-                    {company.explanation_method === 'online' ? 'オンライン' :
-                     company.explanation_method === 'visit' ? '訪問' :
-                     company.explanation_method === 'document' ? '資料送付' : '未設定'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">登録日</p>
-                  <p className="font-medium">
-                    {format(new Date(company.created_at), 'yyyy/MM/dd', { locale: ja })}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
-      {/* タブコンテンツ */}
-      <Tabs defaultValue="history" className="w-full">
-        <TabsList>
-          <TabsTrigger value="history">ステータス履歴</TabsTrigger>
-          <TabsTrigger value="notes">メモ</TabsTrigger>
-          <TabsTrigger value="emails">メール</TabsTrigger>
-        </TabsList>
+      {/* メモセクション */}
+      <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">メモ</h2>
+        <div className="whitespace-pre-wrap text-gray-700">
+          {company.notes || '（メモはありません）'}
+        </div>
+      </div>
 
-        <TabsContent value="history">
-          <Card>
-            <CardHeader>
-              <CardTitle>ステータス変更履歴</CardTitle>
-              <CardDescription>直近10件の変更履歴</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {statusHistory.length > 0 ? (
-                  statusHistory.map((history, index) => (
-                    <div key={history.id} className="flex items-start gap-4">
-                      <div className="flex-shrink-0">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                          <History className="h-4 w-4 text-blue-600" />
-                        </div>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          {history.from_status && (
-                            <>
-                              <Badge variant="outline" className="text-xs">
-                                {STATUS_DEFINITIONS[history.from_status]?.name || history.from_status}
-                              </Badge>
-                              <ChevronRight className="h-3 w-3 text-gray-400" />
-                            </>
-                          )}
-                          <Badge className={`${getStatusColor(history.to_status)} text-xs`}>
-                            {STATUS_DEFINITIONS[history.to_status]?.name || history.to_status}
-                          </Badge>
-                        </div>
-                        {history.change_reason && (
-                          <p className="text-sm text-gray-600 mt-1">{history.change_reason}</p>
-                        )}
-                        <p className="text-xs text-gray-500 mt-1">
-                          {format(new Date(history.created_at), 'yyyy/MM/dd HH:mm', { locale: ja })}
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-gray-500 text-center py-4">履歴がありません</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="notes">
-          <Card>
-            <CardHeader>
-              <CardTitle>メモ</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="whitespace-pre-wrap">
-                {company.notes || '（メモはありません）'}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="emails">
-          <Card>
-            <CardHeader>
-              <CardTitle>メール履歴</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-500 text-center py-8">
-                メール機能は準備中です
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {/* アクションボタン */}
+      <div className="flex gap-4">
+        <button className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors">
+          ステータス変更
+        </button>
+        <button className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors">
+          メール送信
+        </button>
+        <button className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors">
+          レポート生成
+        </button>
+      </div>
     </div>
   )
 }

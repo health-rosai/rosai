@@ -66,6 +66,13 @@ export default function CompanyForm({ company, mode }: CompanyFormProps) {
 
         if (error) {
           console.error('Database error:', error)
+          console.error('Error details:', {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint,
+            full: JSON.stringify(error, null, 2)
+          })
           throw error
         }
 
