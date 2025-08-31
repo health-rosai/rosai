@@ -29,7 +29,8 @@ export default function DashboardPage() {
         .limit(5)
 
       if (companiesError) {
-        console.error('Error fetching companies:', companiesError)
+        console.error('Error fetching companies:', companiesError.message || companiesError)
+        console.error('Error details:', JSON.stringify(companiesError, null, 2))
       } else {
         setCompanies(companiesData || [])
       }
