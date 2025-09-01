@@ -12,8 +12,7 @@ import { toast } from 'sonner'
 import { MotionWrapper } from '@/components/ui/motion'
 
 export default function LoginPage() {
-  const isDev = process.env.NODE_ENV === 'development'
-  // クライアントサイドでは環境変数を直接チェックできないため、常にデモモードとして扱う
+  // デモモードを常に有効化
   const isDemoMode = true
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -265,41 +264,76 @@ export default function LoginPage() {
             </PremiumCardContent>
           </PremiumCard>
       
-          {/* Test Accounts for Demo Mode */}
-          <div className="mt-4">
-            <div className="backdrop-blur-md border-2 border-amber-200 bg-amber-50/90 rounded-lg p-4">
-              <div className="mb-2">
-                <h3 className="text-base font-semibold flex items-center gap-2 text-amber-800">
-                  <Sparkles className="h-4 w-4" />
-                  デモモード - テストアカウント
-                </h3>
-              </div>
-              <div className="space-y-2">
-                <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                  {[
-                    { role: '管理者', email: 'admin@test.com', password: 'admin123456' },
-                    { role: 'マネージャー', email: 'manager@test.com', password: 'manager123456' },
-                    { role: 'オペレーター', email: 'operator@test.com', password: 'operator123456' },
-                    { role: '閲覧者', email: 'viewer@test.com', password: 'viewer123456' }
-                  ].map((account, index) => (
-                    <div key={index} className="space-y-1">
-                      <p className="font-semibold text-amber-800">{account.role}:</p>
-                      <p className="text-xs text-amber-700 font-mono break-all">{account.email}</p>
-                      <p className="text-xs text-amber-600 font-mono">{account.password}</p>
-                    </div>
-                  ))}
+          {/* Test Accounts - Always Visible */}
+          <div style={{ marginTop: '16px' }}>
+            <div style={{ 
+              border: '2px solid #fbbf24', 
+              backgroundColor: '#fef3c7', 
+              borderRadius: '8px', 
+              padding: '16px' 
+            }}>
+              <h3 style={{ 
+                fontSize: '16px', 
+                fontWeight: 'bold', 
+                color: '#92400e', 
+                marginBottom: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                ✨ デモモード - テストアカウント
+              </h3>
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(2, 1fr)', 
+                  gap: '16px',
+                  fontSize: '14px'
+                }}>
+                  <div>
+                    <strong style={{ color: '#92400e' }}>管理者:</strong><br/>
+                    <code style={{ fontSize: '12px', color: '#b45309' }}>admin@test.com</code><br/>
+                    <code style={{ fontSize: '12px', color: '#d97706' }}>admin123456</code>
+                  </div>
+                  <div>
+                    <strong style={{ color: '#92400e' }}>マネージャー:</strong><br/>
+                    <code style={{ fontSize: '12px', color: '#b45309' }}>manager@test.com</code><br/>
+                    <code style={{ fontSize: '12px', color: '#d97706' }}>manager123456</code>
+                  </div>
+                  <div>
+                    <strong style={{ color: '#92400e' }}>オペレーター:</strong><br/>
+                    <code style={{ fontSize: '12px', color: '#b45309' }}>operator@test.com</code><br/>
+                    <code style={{ fontSize: '12px', color: '#d97706' }}>operator123456</code>
+                  </div>
+                  <div>
+                    <strong style={{ color: '#92400e' }}>閲覧者:</strong><br/>
+                    <code style={{ fontSize: '12px', color: '#b45309' }}>viewer@test.com</code><br/>
+                    <code style={{ fontSize: '12px', color: '#d97706' }}>viewer123456</code>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  className="w-full py-2 px-4 border-2 border-amber-300 bg-amber-100 hover:bg-amber-200 text-amber-800 font-medium rounded-lg transition-colors"
-                  onClick={() => {
-                    setEmail('admin@test.com')
-                    setPassword('admin123456')
-                  }}
-                >
-                  管理者アカウントで自動入力
-                </button>
               </div>
+              <button
+                type="button"
+                style={{
+                  width: '100%',
+                  padding: '8px 16px',
+                  border: '2px solid #fbbf24',
+                  backgroundColor: '#fed7aa',
+                  color: '#92400e',
+                  fontWeight: 'bold',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fbbf24'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fed7aa'}
+                onClick={() => {
+                  setEmail('admin@test.com');
+                  setPassword('admin123456');
+                }}
+              >
+                管理者アカウントで自動入力
+              </button>
             </div>
           </div>
         </MotionWrapper>
