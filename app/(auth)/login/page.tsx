@@ -13,7 +13,8 @@ import { MotionWrapper } from '@/components/ui/motion'
 
 export default function LoginPage() {
   const isDev = process.env.NODE_ENV === 'development'
-  const isDemoMode = !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  // クライアントサイドでは環境変数を直接チェックできないため、常にデモモードとして扱う
+  const isDemoMode = true
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -265,7 +266,7 @@ export default function LoginPage() {
           </PremiumCard>
       
           {/* Test Accounts for Demo Mode */}
-          {(isDev || isDemoMode) && (
+          {isDemoMode && (
             <MotionWrapper variant="slideUp" delay={0.7}>
               <PremiumCard variant="glass" className="backdrop-blur-md border-amber-200/30 bg-amber-50/10">
                 <PremiumCardHeader>
