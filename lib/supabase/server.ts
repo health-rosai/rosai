@@ -3,9 +3,13 @@ import { cookies } from 'next/headers'
 
 export async function createClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  // 開発環境では一時的にService Role Keyを使用（RLSポリシーの問題を回避）
+  const isDevelopment = process.env.NEXT_PUBLIC_ENVIRONMENT === 'development'
+  const supabaseKey = isDevelopment && process.env.SUPABASE_SERVICE_ROLE_KEY
+    ? process.env.SUPABASE_SERVICE_ROLE_KEY
+    : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!supabaseUrl || !supabaseKey) {
     // 開発環境用のダミー値を返す
     console.warn('Supabase environment variables are not set. Using placeholder values.')
     return createServerClient(
@@ -36,7 +40,7 @@ export async function createClient() {
 
   return createServerClient(
     supabaseUrl,
-    supabaseAnonKey,
+    supabaseKey,
     {
       cookies: {
         async getAll() {

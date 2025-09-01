@@ -13,6 +13,7 @@ import { MotionWrapper } from '@/components/ui/motion'
 
 export default function LoginPage() {
   const isDev = process.env.NODE_ENV === 'development'
+  const isDemoMode = !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -26,49 +27,56 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // 開発環境用のモックログイン
-      if (process.env.NODE_ENV === 'development') {
-        const response = await fetch('/api/dev-login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        })
-
-        const data = await response.json()
-
-        if (!response.ok) {
-          toast.error('ログインに失敗しました', {
-            description: data.error || 'Invalid credentials'
-          })
-          return
-        }
-
-        toast.success('ログインしました（開発モード）')
-        router.push('/dashboard')
-        return
-      }
-
-      // 本番環境用のSupabaseログイン
+      // Supabase認証を試みる
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (error) {
+        // デモモードの場合はテストアカウントを確認
+        if (isDemoMode) {
+          const testAccounts = [
+            { email: 'admin@test.com', password: 'admin123456' },
+            { email: 'manager@test.com', password: 'manager123456' },
+            { email: 'operator@test.com', password: 'operator123456' },
+            { email: 'viewer@test.com', password: 'viewer123456' }
+          ];
+          
+          const isTestAccount = testAccounts.some(
+            acc => acc.email === email && acc.password === password
+          );
+          
+          if (isTestAccount) {
+            // デモモードでのログイン成功
+            if (typeof window !== 'undefined') {
+              window.sessionStorage.setItem('demo-user', JSON.stringify({
+                id: 'demo-user',
+                email: email,
+                role: email.split('@')[0]
+              }));
+            }
+            toast.success('ログインしました（デモモード）');
+            router.push('/dashboard');
+            return;
+          }
+        }
+        
         toast.error('ログインに失敗しました', {
-          description: error.message,
-        })
-        return
+          description: isDemoMode ? 'テストアカウントを使用してください' : error.message,
+        });
+        return;
       }
 
-      if (data.user) {
-        toast.success('ログインしました')
-        router.push('/dashboard')
+      if (data?.user) {
+        toast.success('ログインしました');
+        router.push('/dashboard');
       }
     } catch (error) {
-      toast.error('エラーが発生しました')
+      console.error('Login error:', error);
+      toast.error('エラーが発生しました');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -259,14 +267,14 @@ export default function LoginPage() {
             </PremiumCardContent>
           </PremiumCard>
       
-          {/* Development Test Accounts */}
-          {isDev && (
+          {/* Test Accounts for Demo Mode */}
+          {(isDev || isDemoMode) && (
             <MotionWrapper variant="slideUp" delay={0.7}>
               <PremiumCard variant="glass" className="backdrop-blur-md border-amber-200/30 bg-amber-50/10">
                 <PremiumCardHeader>
                   <PremiumCardTitle className="text-base flex items-center gap-2 text-amber-700">
                     <Sparkles className="h-4 w-4" />
-                    開発用テストアカウント
+                    {isDemoMode ? 'デモモード - テストアカウント' : '開発用テストアカウント'}
                   </PremiumCardTitle>
                 </PremiumCardHeader>
                 <PremiumCardContent>

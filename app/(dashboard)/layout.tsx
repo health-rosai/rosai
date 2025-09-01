@@ -10,18 +10,17 @@ const menuSections = [
     items: [
       { name: 'ダッシュボード', href: '/dashboard', emoji: '📊' },
       { name: '企業管理', href: '/companies', emoji: '🏢' },
-      { name: 'ステータス進捗管理', href: '/kanban', emoji: '📋' },
+      { name: 'ステータス管理', href: '/kanban', emoji: '📋' },
       { name: 'ガントチャート', href: '/gantt', emoji: '📅' },
       { name: 'レポート', href: '/reports', emoji: '📈' },
       { name: 'メール管理', href: '/admin/email-import', emoji: '✉️' },
-      { name: 'FAQ管理', href: '/faqs', emoji: '❓' },
     ],
   },
   {
     title: 'AI機能',
     items: [
       { name: 'AIアシスタント', href: '/ai-assistant', emoji: '🤖' },
-      { name: '業務効率化のためのAI支援機能', href: '/ai-analysis', emoji: '🔍' },
+      { name: 'AI分析', href: '/ai-analysis', emoji: '🔍' },
     ],
   },
   {
@@ -39,213 +38,108 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const [collapsed, setCollapsed] = useState(false)
 
   return (
-    <div 
-      style={{ 
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column'
-      }}
-    >
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header 
-        style={{ 
-          background: 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: 'blur(10px)',
-          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-          padding: '1rem 2rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}
-      >
-        <div>
-          <h1 style={{ fontSize: '1.5rem', color: '#333', fontWeight: '600', margin: 0 }}>
-            労災二次健診システム
-          </h1>
-          <p style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.25rem' }}>
-            Management System
-          </p>
+      <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => setCollapsed(!collapsed)}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <div>
+            <h1 className="text-xl font-semibold text-gray-900">労災二次健診システム</h1>
+            <p className="text-xs text-gray-500">Management System</p>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <button 
-            style={{
-              background: '#f3f4f6',
-              border: 'none',
-              padding: '0.5rem 1rem',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#e5e7eb';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#f3f4f6';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <span>🔔</span>
-            <span>通知</span>
+        <div className="flex gap-3 items-center">
+          <button className="p-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors relative">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
-          <button 
-            style={{
-              background: '#f3f4f6',
-              border: 'none',
-              padding: '0.5rem 1rem',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#e5e7eb';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#f3f4f6';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <span>👤</span>
-            <span>管理者</span>
-          </button>
+          <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+              管
+            </div>
+            <span className="text-sm font-medium text-gray-700">管理者</span>
+          </div>
         </div>
       </header>
 
       {/* Main Container */}
-      <div 
-        style={{
-          display: 'flex',
-          flex: 1,
-          margin: '1rem',
-          gap: '1rem',
-          maxWidth: '1400px',
-          width: '100%',
-          marginLeft: 'auto',
-          marginRight: 'auto'
-        }}
-      >
+      <div className="flex flex-1">
         {/* Sidebar */}
-        <aside 
-          style={{
-            width: '280px',
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: '16px',
-            padding: '1.5rem',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-            overflowY: 'auto'
-          }}
-        >
-          {menuSections.map((section) => (
-            <div key={section.title} style={{ marginBottom: '2rem' }}>
-              <h3 style={{
-                fontSize: '0.75rem',
-                fontWeight: '600',
-                color: '#9ca3af',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                marginBottom: '0.75rem'
-              }}>
-                {section.title}
-              </h3>
-              <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                {section.items.map((item) => {
-                  const isActive = pathname === item.href
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        padding: '0.75rem 1rem',
-                        borderRadius: '12px',
-                        color: isActive ? 'white' : '#4b5563',
-                        textDecoration: 'none',
-                        transition: 'all 0.3s ease',
-                        background: isActive ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
-                        boxShadow: isActive ? '0 4px 12px rgba(102, 126, 234, 0.4)' : 'none',
-                        transform: isActive ? 'translateX(4px)' : 'translateX(0)'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                          e.currentTarget.style.color = 'white';
-                          e.currentTarget.style.transform = 'translateX(4px)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.background = 'transparent';
-                          e.currentTarget.style.color = '#4b5563';
-                          e.currentTarget.style.transform = 'translateX(0)';
-                        }
-                      }}
-                    >
-                      <span style={{ fontSize: '1.25rem', marginRight: '0.75rem' }}>{item.emoji}</span>
-                      <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>{item.name}</span>
-                    </Link>
-                  )
-                })}
-              </nav>
-            </div>
-          ))}
+        <aside className={`${collapsed ? 'w-16' : 'w-64'} bg-white border-r border-gray-200 transition-all duration-300 flex flex-col`}>
+          <div className="flex-1 overflow-y-auto p-4">
+            {menuSections.map((section) => (
+              <div key={section.title} className="mb-6">
+                {!collapsed && (
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">
+                    {section.title}
+                  </h3>
+                )}
+                <nav className="space-y-1">
+                  {section.items.map((item) => {
+                    const isActive = pathname === item.href
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`
+                          flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200
+                          ${isActive 
+                            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' 
+                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                          }
+                          ${collapsed ? 'justify-center' : ''}
+                        `}
+                        title={collapsed ? item.name : ''}
+                      >
+                        <span className="text-xl flex-shrink-0" style={{ minWidth: '24px' }}>
+                          {item.emoji}
+                        </span>
+                        {!collapsed && (
+                          <span className="text-sm font-medium">{item.name}</span>
+                        )}
+                      </Link>
+                    )
+                  })}
+                </nav>
+              </div>
+            ))}
+          </div>
 
           {/* AI Assistant Card */}
-          <div style={{
-            padding: '1rem',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #f3e7fc 0%, #fce7f3 100%)',
-            border: '1px solid #e9d5ff',
-            marginTop: '2rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>🤖</span>
-              <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151' }}>
-                AIアシスタント
-              </span>
+          {!collapsed && (
+            <div className="p-4 border-t border-gray-200">
+              <div className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <svg width="20" height="20" className="text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                  <span className="text-sm font-semibold text-gray-800">AIアシスタント</span>
+                </div>
+                <p className="text-xs text-gray-600 mb-3">
+                  業務効率化のためのAI支援
+                </p>
+                <button className="w-full px-3 py-2 text-xs font-medium text-purple-700 bg-white/80 backdrop-blur border border-purple-300 rounded-lg hover:bg-white transition-colors">
+                  詳細を見る
+                </button>
+              </div>
             </div>
-            <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '1rem' }}>
-              業務効率化のためのAI支援機能を活用しましょう
-            </p>
-            <button style={{
-              width: '100%',
-              padding: '0.5rem 0.75rem',
-              fontSize: '0.75rem',
-              fontWeight: '500',
-              color: '#7c3aed',
-              background: 'rgba(139, 92, 246, 0.1)',
-              border: '1px solid rgba(139, 92, 246, 0.2)',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}>
-              詳細を見る
-            </button>
-          </div>
+          )}
         </aside>
 
         {/* Main Content */}
-        <main 
-          style={{
-            flex: 1,
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: '16px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-            overflow: 'hidden'
-          }}
-        >
+        <main className="flex-1 overflow-hidden">
           {children}
         </main>
       </div>
