@@ -4,43 +4,17 @@ import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 
-interface MenuItem {
-  name: string
-  href: string
-  emoji: string
-}
-
-interface MenuSection {
-  title: string
-  items: MenuItem[]
-}
-
-const menuSections: MenuSection[] = [
-  {
-    title: 'メインメニュー',
-    items: [
-      { name: 'ダッシュボード', href: '/dashboard', emoji: '📊' },
-      { name: '企業管理', href: '/companies', emoji: '🏢' },
-      { name: 'ステータス管理', href: '/kanban', emoji: '📋' },
-      { name: 'ガントチャート', href: '/gantt', emoji: '📅' },
-      { name: 'レポート', href: '/reports', emoji: '📈' },
-      { name: 'メール管理', href: '/admin/email-import', emoji: '✉️' },
-    ],
-  },
-  {
-    title: 'AI機能',
-    items: [
-      { name: 'AIアシスタント', href: '/ai-assistant', emoji: '🤖' },
-      { name: 'AI分析', href: '/ai-analysis', emoji: '🔍' },
-    ],
-  },
-  {
-    title: 'システム',
-    items: [
-      { name: '設定', href: '/settings', emoji: '⚙️' },
-      { name: 'ヘルプ', href: '/help', emoji: '📚' },
-    ],
-  },
+const menuItems = [
+  { name: 'ダッシュボード', href: '/dashboard', emoji: '📊' },
+  { name: '企業管理', href: '/companies', emoji: '🏢' },
+  { name: 'ステータス管理', href: '/kanban', emoji: '📋' },
+  { name: 'ガントチャート', href: '/gantt', emoji: '📅' },
+  { name: 'レポート', href: '/reports', emoji: '📈' },
+  { name: 'メール管理', href: '/admin/email-import', emoji: '✉️' },
+  { name: 'AIアシスタント', href: '/ai-assistant', emoji: '🤖' },
+  { name: 'AI分析', href: '/ai-analysis', emoji: '🔍' },
+  { name: '設定', href: '/settings', emoji: '⚙️' },
+  { name: 'ヘルプ', href: '/help', emoji: '📚' },
 ]
 
 export default function DashboardLayout({
@@ -88,71 +62,37 @@ export default function DashboardLayout({
       {/* Main Container */}
       <div className="flex flex-1">
         {/* Sidebar */}
-        <aside className={`${collapsed ? 'w-16' : 'w-64'} bg-white border-r border-gray-200 transition-all duration-300 flex flex-col`}>
-          <div className="flex-1 overflow-y-auto p-4">
-            {menuSections && menuSections.length > 0 ? (
-              menuSections.map((section) => (
-                  <div key={section.title} className="mb-6">
+        <aside className={`${collapsed ? 'w-16' : 'w-64'} bg-white border-r border-gray-200 transition-all duration-300`}>
+          <div className="p-4">
+            <h2 className={`text-sm font-bold text-gray-600 mb-4 ${collapsed ? 'hidden' : 'block'}`}>
+              メニュー
+            </h2>
+            <nav className="space-y-1">
+              {menuItems.map((item) => {
+                const isActive = pathname === item.href
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`
+                      flex items-center gap-3 px-3 py-2 rounded-lg transition-colors
+                      ${isActive 
+                        ? 'bg-purple-600 text-white' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                      }
+                      ${collapsed ? 'justify-center' : ''}
+                    `}
+                    title={collapsed ? item.name : ''}
+                  >
+                    <span className="text-lg">{item.emoji}</span>
                     {!collapsed && (
-                      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">
-                        {section.title}
-                      </h3>
+                      <span className="text-sm font-medium">{item.name}</span>
                     )}
-                    <nav className="space-y-1">
-                      {section.items && section.items.map((item) => {
-                        const isActive = pathname === item.href
-                        return (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            className={`
-                              flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200
-                              ${isActive 
-                                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' 
-                                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                              }
-                              ${collapsed ? 'justify-center' : ''}
-                            `}
-                            title={collapsed ? item.name : ''}
-                          >
-                            <span className="flex-shrink-0 text-lg">
-                              {item.emoji}
-                            </span>
-                            {!collapsed && (
-                              <span className="text-sm font-medium">{item.name}</span>
-                            )}
-                          </Link>
-                        )
-                      })}
-                    </nav>
-                  </div>
-              ))
-          ) : (
-            <div className="text-center text-gray-500 py-4">
-              メニューが読み込まれていません
-            </div>
-          )}
+                  </Link>
+                )
+              })}
+            </nav>
           </div>
-
-          {/* AI Assistant Card */}
-          {!collapsed && (
-            <div className="p-4 border-t border-gray-200">
-              <div className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <svg width="20" height="20" className="text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                  </svg>
-                  <span className="text-sm font-semibold text-gray-800">AIアシスタント</span>
-                </div>
-                <p className="text-xs text-gray-600 mb-3">
-                  業務効率化のためのAI支援
-                </p>
-                <button className="w-full px-3 py-2 text-xs font-medium text-purple-700 bg-white/80 backdrop-blur border border-purple-300 rounded-lg hover:bg-white transition-colors">
-                  詳細を見る
-                </button>
-              </div>
-            </div>
-          )}
         </aside>
 
         {/* Main Content */}

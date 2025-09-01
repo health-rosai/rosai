@@ -266,46 +266,42 @@ export default function LoginPage() {
           </PremiumCard>
       
           {/* Test Accounts for Demo Mode */}
-          {isDemoMode && (
-            <MotionWrapper variant="slideUp" delay={0.7}>
-              <PremiumCard variant="glass" className="backdrop-blur-md border-amber-200/30 bg-amber-50/10">
-                <PremiumCardHeader>
-                  <PremiumCardTitle className="text-base flex items-center gap-2 text-amber-700">
-                    <Sparkles className="h-4 w-4" />
-                    {isDemoMode ? 'デモモード - テストアカウント' : '開発用テストアカウント'}
-                  </PremiumCardTitle>
-                </PremiumCardHeader>
-                <PremiumCardContent>
-                  <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                    {[
-                      { role: '管理者', email: 'admin@test.com', password: 'admin123456' },
-                      { role: 'マネージャー', email: 'manager@test.com', password: 'manager123456' },
-                      { role: 'オペレーター', email: 'operator@test.com', password: 'operator123456' },
-                      { role: '閲覧者', email: 'viewer@test.com', password: 'viewer123456' }
-                    ].map((account, index) => (
-                      <div key={index} className="space-y-1">
-                        <p className="font-semibold text-amber-800">{account.role}:</p>
-                        <p className="text-xs text-amber-700 font-mono">{account.email}</p>
-                        <p className="text-xs text-amber-600 font-mono">{account.password}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <PremiumButton
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="w-full border border-amber-200 hover:bg-amber-100/50 text-amber-700"
-                    onClick={() => {
-                      setEmail('admin@test.com')
-                      setPassword('admin123456')
-                    }}
-                  >
-                    管理者アカウントで自動入力
-                  </PremiumButton>
-                </PremiumCardContent>
-              </PremiumCard>
-            </MotionWrapper>
-          )}
+          <div className="mt-4">
+            <div className="backdrop-blur-md border-2 border-amber-200 bg-amber-50/90 rounded-lg p-4">
+              <div className="mb-2">
+                <h3 className="text-base font-semibold flex items-center gap-2 text-amber-800">
+                  <Sparkles className="h-4 w-4" />
+                  デモモード - テストアカウント
+                </h3>
+              </div>
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+                  {[
+                    { role: '管理者', email: 'admin@test.com', password: 'admin123456' },
+                    { role: 'マネージャー', email: 'manager@test.com', password: 'manager123456' },
+                    { role: 'オペレーター', email: 'operator@test.com', password: 'operator123456' },
+                    { role: '閲覧者', email: 'viewer@test.com', password: 'viewer123456' }
+                  ].map((account, index) => (
+                    <div key={index} className="space-y-1">
+                      <p className="font-semibold text-amber-800">{account.role}:</p>
+                      <p className="text-xs text-amber-700 font-mono break-all">{account.email}</p>
+                      <p className="text-xs text-amber-600 font-mono">{account.password}</p>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  className="w-full py-2 px-4 border-2 border-amber-300 bg-amber-100 hover:bg-amber-200 text-amber-800 font-medium rounded-lg transition-colors"
+                  onClick={() => {
+                    setEmail('admin@test.com')
+                    setPassword('admin123456')
+                  }}
+                >
+                  管理者アカウントで自動入力
+                </button>
+              </div>
+            </div>
+          </div>
         </MotionWrapper>
       </div>
     </div>
