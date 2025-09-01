@@ -4,7 +4,18 @@ import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 
-const menuSections = [
+interface MenuItem {
+  name: string
+  href: string
+  emoji: string
+}
+
+interface MenuSection {
+  title: string
+  items: MenuItem[]
+}
+
+const menuSections: MenuSection[] = [
   {
     title: 'メインメニュー',
     items: [
@@ -39,6 +50,10 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
+  
+  // デバッグ用
+  console.log('Layout mounted, pathname:', pathname)
+  console.log('Menu sections:', menuSections)
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -79,7 +94,8 @@ export default function DashboardLayout({
         {/* Sidebar */}
         <aside className={`${collapsed ? 'w-16' : 'w-64'} bg-white border-r border-gray-200 transition-all duration-300 flex flex-col`}>
           <div className="flex-1 overflow-y-auto p-4">
-            {menuSections.map((section) => (
+            {menuSections && menuSections.length > 0 ? (
+              menuSections.map((section) => (
               <div key={section.title} className="mb-6">
                 {!collapsed && (
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">
@@ -103,18 +119,23 @@ export default function DashboardLayout({
                         `}
                         title={collapsed ? item.name : ''}
                       >
-                        <span className="text-xl flex-shrink-0" style={{ minWidth: '24px' }}>
-                          {item.emoji}
+                        <span className="text-xl flex-shrink-0" style={{ minWidth: '24px', display: 'inline-block' }}>
+                          {item.emoji || '📌'}
                         </span>
                         {!collapsed && (
-                          <span className="text-sm font-medium">{item.name}</span>
+                          <span className="text-sm font-medium">{item.name || 'Unknown'}</span>
                         )}
                       </Link>
                     )
                   })}
                 </nav>
               </div>
-            ))}
+            ))
+          ) : (
+            <div className="text-center text-gray-500 py-4">
+              メニューが読み込まれていません
+            </div>
+          )}
           </div>
 
           {/* AI Assistant Card */}

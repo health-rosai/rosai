@@ -27,43 +27,40 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // Supabase認証を試みる
+      // デモモードの場合は/api/dev-loginを使用
+      if (isDemoMode) {
+        const response = await fetch('/api/dev-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          if (typeof window !== 'undefined') {
+            window.sessionStorage.setItem('demo-user', JSON.stringify(data.user));
+          }
+          toast.success('ログインしました（デモモード）');
+          router.push('/dashboard');
+          return;
+        } else {
+          toast.error('ログインに失敗しました', {
+            description: 'テストアカウントを使用してください'
+          });
+          return;
+        }
+      }
+
+      // 本番モードの場合はSupabase認証を使用
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
-      })
+      });
 
       if (error) {
-        // デモモードの場合はテストアカウントを確認
-        if (isDemoMode) {
-          const testAccounts = [
-            { email: 'admin@test.com', password: 'admin123456' },
-            { email: 'manager@test.com', password: 'manager123456' },
-            { email: 'operator@test.com', password: 'operator123456' },
-            { email: 'viewer@test.com', password: 'viewer123456' }
-          ];
-          
-          const isTestAccount = testAccounts.some(
-            acc => acc.email === email && acc.password === password
-          );
-          
-          if (isTestAccount) {
-            // デモモードでのログイン成功
-            if (typeof window !== 'undefined') {
-              window.sessionStorage.setItem('demo-user', JSON.stringify({
-                id: 'demo-user',
-                email: email,
-                role: email.split('@')[0]
-              }));
-            }
-            toast.success('ログインしました（デモモード）');
-            router.push('/dashboard');
-            return;
-          }
-        }
-        
         toast.error('ログインに失敗しました', {
-          description: isDemoMode ? 'テストアカウントを使用してください' : error.message,
+          description: error.message,
         });
         return;
       }

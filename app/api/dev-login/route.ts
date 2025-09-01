@@ -34,10 +34,12 @@ const DEV_USERS = [
 ]
 
 export async function POST(request: NextRequest) {
-  // 本番環境では無効化
-  if (process.env.NODE_ENV === 'production') {
+  // デモモードまたは開発環境で有効
+  const isDemoMode = !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (process.env.NODE_ENV === 'production' && !isDemoMode) {
     return NextResponse.json(
-      { error: 'This endpoint is only available in development' },
+      { error: 'This endpoint is only available in development or demo mode' },
       { status: 403 }
     )
   }
